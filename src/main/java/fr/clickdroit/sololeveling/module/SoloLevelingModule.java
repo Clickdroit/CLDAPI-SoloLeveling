@@ -1,6 +1,7 @@
 package fr.clickdroit.sololeveling.module;
 
 import fr.clickdroit.api.API;
+import fr.clickdroit.api.module.ModuleType;
 import fr.clickdroit.api.module.Modules;
 import fr.clickdroit.sololeveling.SoloLevelingPlugin;
 import fr.clickdroit.sololeveling.camp.Camp;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 /**
  * Module principal Solo Leveling qui s'intègre avec CLDAPI.
+ * Ce module gère le mode de jeu basé sur l'univers Solo Leveling.
  */
 public class SoloLevelingModule extends Modules {
 
@@ -23,6 +25,24 @@ public class SoloLevelingModule extends Modules {
 
     public SoloLevelingModule(SoloLevelingPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    /**
+     * Retourne le type de module pour l'enregistrement avec CLDAPI.
+     * @return Le type de module SOLOLEVELING
+     */
+    @Override
+    public ModuleType getModuleType() {
+        return ModuleType.SOLOLEVELING;
+    }
+
+    /**
+     * Retourne le nom d'affichage du module.
+     * @return Le nom du module
+     */
+    @Override
+    public String getDisplayName() {
+        return "§5Solo Leveling";
     }
 
     @Override

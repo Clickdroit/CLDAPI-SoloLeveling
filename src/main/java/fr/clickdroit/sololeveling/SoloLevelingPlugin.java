@@ -1,7 +1,6 @@
 package fr.clickdroit.sololeveling;
 
 import fr.clickdroit.api.API;
-import fr.clickdroit.api.module.ModuleType;
 import fr.clickdroit.sololeveling.camp.CampManager;
 import fr.clickdroit.sololeveling.command.PowersCommand;
 import fr.clickdroit.sololeveling.command.RoleCommand;
@@ -44,8 +43,9 @@ public class SoloLevelingPlugin extends JavaPlugin {
         this.module = new SoloLevelingModule(this);
 
         // Enregistrer le module auprès de l'API
+        // L'API récupère automatiquement le module via setModules() et getModuleType()
         API.getAPI().setModules(this.module);
-        API.getAPI().getGameManager().getModuleManager().setCurrentModule(ModuleType.SOLOLEVELING);
+        API.getAPI().getGameManager().getModuleManager().setCurrentModule(this.module.getModuleType());
 
         // Enregistrer les listeners
         getServer().getPluginManager().registerEvents(new RoleListener(this), this);
