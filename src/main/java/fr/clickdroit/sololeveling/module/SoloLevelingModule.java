@@ -57,6 +57,9 @@ public class SoloLevelingModule extends Modules {
         // Récupérer les joueurs en jeu
         List<UUID> inGamePlayers = new ArrayList<>(api.getGameManager().getInGamePlayers());
 
+        // Initialiser les statistiques
+        plugin.getStatsManager().startGame(inGamePlayers);
+
         // Distribuer les rôles
         plugin.getRoleManager().distributeRoles(inGamePlayers);
 
@@ -72,9 +75,7 @@ public class SoloLevelingModule extends Modules {
         Bukkit.broadcastMessage("");
 
         // Programmer la révélation des rôles
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            revealRoles();
-        }, roleRevealTime * 20L);
+        Bukkit.getScheduler().runTaskLater(plugin, this::revealRoles, roleRevealTime * 20L);
     }
 
     private void revealRoles() {
@@ -108,8 +109,10 @@ public class SoloLevelingModule extends Modules {
             }
         }
 
-        // Notifier le killer
+        // Enregistrer les statistiques
         if (killer != null) {
+            plugin.getStatsManager().recordKill(killer.getUniqueId(), player.getUniqueId());
+            
             RolePlayer killerRp = plugin.getRoleManager().getRolePlayer(killer.getUniqueId());
             if (killerRp != null && killerRp.getRole() != null) {
                 killerRp.addKill();
@@ -136,8 +139,20 @@ public class SoloLevelingModule extends Modules {
     private void checkWinConditions() {
         Camp winner = plugin.getCampManager().checkWinCondition();
         if (winner != null) {
+            // Terminer les statistiques avant d'annoncer la victoire
+            plugin.getStatsManager().endGame();
             plugin.getCampManager().announceVictory(winner);
         }
+    }
+
+    /**
+     * Réinitialise le module pour une nouvelle partie.
+     */
+    public void reset() {
+        plugin.getRoleManager().reset();
+        plugin.getStatsManager().reset();
+        roleRevealTime = 60;
+        plugin.getLogger().info("Module Solo Leveling réinitialisé.");
     }
 
     @Override
