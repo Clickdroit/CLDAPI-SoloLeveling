@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Commande /camp pour afficher les informations sur le camp du joueur.
@@ -124,7 +125,7 @@ public class CampCommand implements CommandExecutor {
         player.sendMessage("§5§l━━━━━ STATISTIQUES DES CAMPS ━━━━━");
         player.sendMessage("");
 
-        var aliveCounts = plugin.getCampManager().getAliveCountByCamp();
+        Map<Camp, Integer> aliveCounts = plugin.getCampManager().getAliveCountByCamp();
         int totalAlive = 0;
 
         for (Camp camp : Camp.values()) {

@@ -257,13 +257,14 @@ public class StatsManager {
 
     /**
      * Retourne l'emoji de médaille selon le rang.
+     * Utilise des caractères texte pour la compatibilité Minecraft.
      */
     private String getMedal(int rank) {
         switch (rank) {
-            case 1: return "§6🥇";
-            case 2: return "§7🥈";
-            case 3: return "§c🥉";
-            default: return "§7" + rank + ".";
+            case 1: return "§6[1er]";
+            case 2: return "§7[2e]";
+            case 3: return "§c[3e]";
+            default: return "§7[" + rank + "e]";
         }
     }
 }

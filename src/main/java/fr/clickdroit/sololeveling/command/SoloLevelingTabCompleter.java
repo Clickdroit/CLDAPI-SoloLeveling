@@ -3,7 +3,6 @@ package fr.clickdroit.sololeveling.command;
 import fr.clickdroit.sololeveling.SoloLevelingPlugin;
 import fr.clickdroit.sololeveling.camp.Camp;
 import fr.clickdroit.sololeveling.power.Power;
-import fr.clickdroit.sololeveling.role.Role;
 import fr.clickdroit.sololeveling.role.RolePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -92,16 +91,8 @@ public class SoloLevelingTabCompleter implements TabCompleter {
 
         if (args.length == 3) {
             if (args[0].equalsIgnoreCase("setrole")) {
-                // Liste des rôles disponibles
-                List<String> roleNames = new ArrayList<>();
-                for (Class<? extends Role> roleClass : plugin.getRoleManager().getRegisteredRoles()) {
-                    try {
-                        Role role = roleClass.getDeclaredConstructor().newInstance();
-                        roleNames.add(role.getName());
-                    } catch (Exception ignored) {
-                    }
-                }
-                return roleNames;
+                // Utiliser les noms des rôles déjà enregistrés (sans créer de nouvelles instances)
+                return new ArrayList<>(plugin.getRoleManager().getRegisteredRoleNames());
             }
         }
 

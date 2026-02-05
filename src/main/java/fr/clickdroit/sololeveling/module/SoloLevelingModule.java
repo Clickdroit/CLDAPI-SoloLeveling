@@ -20,8 +20,10 @@ import java.util.UUID;
  */
 public class SoloLevelingModule extends Modules {
 
+    private static final int DEFAULT_ROLE_REVEAL_TIME = 60;
+
     private final SoloLevelingPlugin plugin;
-    private int roleRevealTime = 60; // Révélation des rôles après 60 secondes
+    private int roleRevealTime = DEFAULT_ROLE_REVEAL_TIME; // Révélation des rôles après 60 secondes
 
     public SoloLevelingModule(SoloLevelingPlugin plugin) {
         this.plugin = plugin;
@@ -151,7 +153,7 @@ public class SoloLevelingModule extends Modules {
     public void reset() {
         plugin.getRoleManager().reset();
         plugin.getStatsManager().reset();
-        roleRevealTime = 60;
+        roleRevealTime = DEFAULT_ROLE_REVEAL_TIME;
         plugin.getLogger().info("Module Solo Leveling réinitialisé.");
     }
 
