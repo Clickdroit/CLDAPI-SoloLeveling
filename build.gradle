@@ -59,7 +59,9 @@ shadowJar {
     archiveClassifier.set('')
     // Le fichier généré sera: SL-UHC.jar
     
-    destinationDirectory.set(file('C:/Users/Administrator/Desktop/Un huit/plugins'))
+    // Répertoire de destination configurable via propriété système ou variable d'environnement
+    def outputDir = System.getenv('UHC_PLUGINS_DIR') ?: System.getProperty('uhc.plugins.dir') ?: "${buildDir}/libs"
+    destinationDirectory.set(file(outputDir))
 }
 
 // Le build standard utilise shadowJar
