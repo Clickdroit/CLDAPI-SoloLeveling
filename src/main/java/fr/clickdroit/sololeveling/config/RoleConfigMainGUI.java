@@ -208,7 +208,7 @@ public class RoleConfigMainGUI implements Listener {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getRawSlot();
 
-        RoleCampGUI campGUI = new RoleCampGUI(plugin);
+        RoleCampGUI campGUI = plugin.getRoleCampGUI();
 
         switch (slot) {
             case 11: // Chasseurs

@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -25,21 +26,15 @@ public class RoleDetailGUI implements Listener {
 
     private final SoloLevelingPlugin plugin;
     private static final String GUI_PREFIX = "§5§lDétails: §d";
-    private Camp parentCamp;
-    private String currentRoleName;
 
     public RoleDetailGUI(SoloLevelingPlugin plugin) {
         this.plugin = plugin;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     /**
      * Ouvre le GUI de détails pour un rôle
      */
     public void open(Player player, String roleName, Camp parentCamp) {
-        this.parentCamp = parentCamp;
-        this.currentRoleName = roleName;
-
         RoleManager rm = plugin.getRoleManager();
         Role role = rm.createRole(roleName);
 
@@ -52,7 +47,10 @@ public class RoleDetailGUI implements Listener {
         if (title.length() > 32) {
             title = title.substring(0, 32);
         }
-        Inventory inv = Bukkit.createInventory(null, 45, title);
+
+        RoleDetailHolder holder = new RoleDetailHolder(parentCamp, roleName);
+        Inventory inv = Bukkit.createInventory(holder, 45, title);
+        holder.setInventory(inv);
 
         // Bordure décorative
         ItemStack glass = createItem(Material.STAINED_GLASS_PANE, (short) 10, " ");
@@ -179,10 +177,16 @@ public class RoleDetailGUI implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        String title = event.getView().getTitle();
-        if (!title.startsWith(GUI_PREFIX))
+        if (event.getClickedInventory() == null)
             return;
+        if (!(event.getInventory().getHolder() instanceof RoleDetailHolder))
+            return;
+
         event.setCancelled(true);
+
+        RoleDetailHolder holder = (RoleDetailHolder) event.getInventory().getHolder();
+        Camp parentCamp = holder.getParentCamp();
+        String currentRoleName = holder.getRoleName();
 
         Player player = (Player) event.getWhoClicked();
         int slot = event.getRawSlot();
@@ -195,7 +199,7 @@ public class RoleDetailGUI implements Listener {
 
         // Bouton retour
         if (slot == 40) {
-            new RoleCampGUI(plugin).open(player, parentCamp);
+            plugin.getRoleCampGUI().open(player, parentCamp);
             return;
         }
 
@@ -210,6 +214,34 @@ public class RoleDetailGUI implements Listener {
 
             // Refresh
             open(player, currentRoleName, parentCamp);
+        }
+    }
+
+    public static class RoleDetailHolder implements InventoryHolder {
+        private final Camp parentCamp;
+        private final String roleName;
+        private Inventory inventory;
+
+        public RoleDetailHolder(Camp parentCamp, String roleName) {
+            this.parentCamp = parentCamp;
+            this.roleName = roleName;
+        }
+
+        public void setInventory(Inventory inventory) {
+            this.inventory = inventory;
+        }
+
+        public Camp getParentCamp() {
+            return parentCamp;
+        }
+
+        public String getRoleName() {
+            return roleName;
+        }
+
+        @Override
+        public Inventory getInventory() {
+            return inventory;
         }
     }
 }

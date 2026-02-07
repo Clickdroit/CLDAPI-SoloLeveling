@@ -12,6 +12,8 @@ import fr.clickdroit.sololeveling.listener.PowerListener;
 import fr.clickdroit.sololeveling.listener.RoleListener;
 import fr.clickdroit.sololeveling.config.SoloLevelingConfigGUI;
 import fr.clickdroit.sololeveling.config.RoleConfigMainGUI;
+import fr.clickdroit.sololeveling.config.RoleCampGUI;
+import fr.clickdroit.sololeveling.config.RoleDetailGUI;
 import fr.clickdroit.sololeveling.config.RoleQuantityConfigGUI;
 import fr.clickdroit.sololeveling.module.SoloLevelingGameModule;
 import fr.clickdroit.sololeveling.role.RoleManager;
@@ -32,6 +34,8 @@ public class SoloLevelingPlugin extends JavaPlugin {
     private SoloLevelingGameModule gameModule;
     private SoloLevelingConfigGUI configGUI;
     private RoleConfigMainGUI roleConfigGUI;
+    private RoleCampGUI roleCampGUI;
+    private RoleDetailGUI roleDetailGUI;
     private RoleQuantityConfigGUI roleQuantityConfigGUI;
     private StatsManager statsManager;
 
@@ -63,6 +67,10 @@ public class SoloLevelingPlugin extends JavaPlugin {
         // Initialiser les GUIs de configuration (singletons)
         this.configGUI = new SoloLevelingConfigGUI(this);
         this.roleConfigGUI = new RoleConfigMainGUI(this);
+        this.roleCampGUI = new RoleCampGUI(this);
+        getServer().getPluginManager().registerEvents(this.roleCampGUI, this);
+        this.roleDetailGUI = new RoleDetailGUI(this);
+        getServer().getPluginManager().registerEvents(this.roleDetailGUI, this);
         this.roleQuantityConfigGUI = new RoleQuantityConfigGUI(this);
 
         // Enregistrer les commandes
@@ -117,6 +125,14 @@ public class SoloLevelingPlugin extends JavaPlugin {
 
     public RoleConfigMainGUI getRoleConfigGUI() {
         return roleConfigGUI;
+    }
+
+    public RoleCampGUI getRoleCampGUI() {
+        return roleCampGUI;
+    }
+
+    public RoleDetailGUI getRoleDetailGUI() {
+        return roleDetailGUI;
     }
 
     public SoloLevelingConfigGUI getConfigGUI() {

@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -27,20 +28,19 @@ public class RoleCampGUI implements Listener {
 
     private final SoloLevelingPlugin plugin;
     private static final String GUI_PREFIX = "§5§l⚔ §dRôles: ";
-    private Camp currentCamp;
 
     public RoleCampGUI(SoloLevelingPlugin plugin) {
         this.plugin = plugin;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     /**
      * Ouvre le GUI pour un camp spécifique
      */
     public void open(Player player, Camp camp) {
-        this.currentCamp = camp;
         String title = GUI_PREFIX + camp.getColorCode() + camp.getDisplayName();
-        Inventory inv = Bukkit.createInventory(null, 54, title);
+        RoleCampHolder holder = new RoleCampHolder(camp);
+        Inventory inv = Bukkit.createInventory(holder, 54, title);
+        holder.setInventory(inv);
         RoleManager rm = plugin.getRoleManager();
 
         // Bordure décorative
@@ -151,10 +151,15 @@ public class RoleCampGUI implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        String title = event.getView().getTitle();
-        if (!title.startsWith(GUI_PREFIX))
+        if (event.getClickedInventory() == null)
             return;
+        if (!(event.getInventory().getHolder() instanceof RoleCampHolder))
+            return;
+
         event.setCancelled(true);
+
+        RoleCampHolder holder = (RoleCampHolder) event.getInventory().getHolder();
+        Camp currentCamp = holder.getCamp();
 
         Player player = (Player) event.getWhoClicked();
         int slot = event.getRawSlot();
@@ -167,7 +172,7 @@ public class RoleCampGUI implements Listener {
 
         // Bouton retour
         if (slot == 49) {
-            new RoleConfigMainGUI(plugin).open(player);
+            plugin.getRoleConfigGUI().open(player);
             return;
         }
 
@@ -179,7 +184,7 @@ public class RoleCampGUI implements Listener {
 
                 if (event.isShiftClick()) {
                     // Ouvrir les détails du rôle
-                    new RoleDetailGUI(plugin).open(player, roleName, currentCamp);
+                    plugin.getRoleDetailGUI().open(player, roleName, currentCamp);
                 } else {
                     // Toggle enable/disable
                     boolean currentState = rm.isRoleEnabled(roleName);
@@ -203,5 +208,27 @@ public class RoleCampGUI implements Listener {
             return displayName.substring(2);
         }
         return displayName;
+    }
+
+    public static class RoleCampHolder implements InventoryHolder {
+        private final Camp camp;
+        private Inventory inventory;
+
+        public RoleCampHolder(Camp camp) {
+            this.camp = camp;
+        }
+
+        public void setInventory(Inventory inventory) {
+            this.inventory = inventory;
+        }
+
+        public Camp getCamp() {
+            return camp;
+        }
+
+        @Override
+        public Inventory getInventory() {
+            return inventory;
+        }
     }
 }
