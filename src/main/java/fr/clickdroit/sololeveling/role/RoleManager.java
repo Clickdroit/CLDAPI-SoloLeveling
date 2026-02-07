@@ -25,6 +25,9 @@ public class RoleManager {
     // Rôles activés pour la prochaine partie
     private final Set<String> enabledRoles;
 
+    // Quantité de chaque rôle (combien de fois le rôle peut être distribué)
+    private final Map<String, Integer> roleQuantities;
+
     // Joueurs avec leur rôle
     private final Map<UUID, RolePlayer> rolePlayers;
 
@@ -35,9 +38,49 @@ public class RoleManager {
         this.plugin = plugin;
         this.registeredRoles = new HashMap<>();
         this.enabledRoles = new HashSet<>();
+        this.roleQuantities = new HashMap<>();
         this.rolePlayers = new HashMap<>();
 
         registerAllRoles();
+        loadConfiguration();
+    }
+
+    /**
+     * Charge la configuration depuis le fichier.
+     */
+    public void loadConfiguration() {
+        // Charger les rôles activés
+        List<String> enabledList = plugin.getConfig().getStringList("roles.enabled");
+        if (enabledList != null && !enabledList.isEmpty()) {
+            enabledRoles.clear();
+            for (String role : enabledList) {
+                enabledRoles.add(role.toLowerCase());
+            }
+        }
+
+        // Charger les quantités
+        if (plugin.getConfig().isConfigurationSection("roles.quantity")) {
+            for (String roleName : plugin.getConfig().getConfigurationSection("roles.quantity").getKeys(false)) {
+                int quantity = plugin.getConfig().getInt("roles.quantity." + roleName);
+                roleQuantities.put(roleName.toLowerCase(), quantity);
+            }
+        }
+    }
+
+    /**
+     * Sauvegarde la configuration dans le fichier.
+     */
+    public void saveConfiguration() {
+        // Sauvegarder les rôles activés
+        List<String> enabledList = new ArrayList<>(enabledRoles);
+        plugin.getConfig().set("roles.enabled", enabledList);
+
+        // Sauvegarder les quantités
+        for (Map.Entry<String, Integer> entry : roleQuantities.entrySet()) {
+            plugin.getConfig().set("roles.quantity." + entry.getKey(), entry.getValue());
+        }
+
+        plugin.saveConfig();
     }
 
     /**
@@ -82,13 +125,18 @@ public class RoleManager {
         try {
             Role instance = roleClass.newInstance();
             String name = instance.getName();
-            registeredRoles.put(name.toLowerCase(), roleClass);
+            String key = name.toLowerCase();
+            registeredRoles.put(key, roleClass);
 
             // Activer par défaut si l'annotation le permet
             RoleInfo info = roleClass.getAnnotation(RoleInfo.class);
             if (info != null && info.enabled()) {
-                enabledRoles.add(name.toLowerCase());
+                enabledRoles.add(key);
             }
+
+            // Quantité par défaut basée sur l'annotation
+            int defaultQuantity = info != null ? info.maxPerGame() : 1;
+            roleQuantities.put(key, defaultQuantity);
         } catch (Exception e) {
             plugin.getLogger().warning("Impossible d'enregistrer le rôle: " + roleClass.getSimpleName());
             e.printStackTrace();
@@ -119,6 +167,7 @@ public class RoleManager {
         } else {
             enabledRoles.remove(key);
         }
+        saveConfiguration();
     }
 
     /**
@@ -126,6 +175,21 @@ public class RoleManager {
      */
     public boolean isRoleEnabled(String roleName) {
         return enabledRoles.contains(roleName.toLowerCase());
+    }
+
+    /**
+     * Obtient la quantité configurée pour un rôle.
+     */
+    public int getRoleQuantity(String roleName) {
+        return roleQuantities.getOrDefault(roleName.toLowerCase(), 1);
+    }
+
+    /**
+     * Définit la quantité pour un rôle.
+     */
+    public void setRoleQuantity(String roleName, int quantity) {
+        roleQuantities.put(roleName.toLowerCase(), Math.max(0, quantity));
+        saveConfiguration();
     }
 
     /**
@@ -154,11 +218,11 @@ public class RoleManager {
         for (String roleName : enabledRoles) {
             Role role = createRole(roleName);
             if (role != null) {
-                RoleInfo info = role.getClass().getAnnotation(RoleInfo.class);
-                int maxPerGame = info != null ? info.maxPerGame() : 1;
+                // Utiliser la quantité configurée
+                int quantity = getRoleQuantity(roleName);
 
-                // Ajouter le rôle le nombre de fois autorisé
-                for (int i = 0; i < maxPerGame && availableRoles.size() < players.size(); i++) {
+                // Ajouter le rôle le nombre de fois configuré
+                for (int i = 0; i < quantity && availableRoles.size() < players.size(); i++) {
                     availableRoles.add(createRole(roleName));
                 }
             }

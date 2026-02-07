@@ -124,6 +124,14 @@ public class RoleConfigMainGUI implements Listener {
                 "§7Cliquez pour désactiver",
                 "§7tous les rôles."));
 
+        // === Bouton Retour ===
+        inv.setItem(40, createItem(
+                Material.ARROW,
+                (short) 0,
+                "§c§lRetour",
+                "",
+                "§7Retour au menu de config"));
+
         player.openInventory(inv);
     }
 
@@ -224,6 +232,9 @@ public class RoleConfigMainGUI implements Listener {
                 enableAllRoles(false);
                 player.sendMessage("§c§l[RÔLES] §fTous les rôles ont été désactivés!");
                 open(player); // Refresh
+                break;
+            case 40: // Retour
+                plugin.getConfigGUI().open(player);
                 break;
         }
     }

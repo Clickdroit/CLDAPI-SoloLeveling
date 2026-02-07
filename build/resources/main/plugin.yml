@@ -3,7 +3,7 @@ main: fr.clickdroit.sololeveling.SoloLevelingPlugin
 version: 1.0.0
 author: Clickdroit
 description: Solo Leveling UHC - Mode de jeu avec rôles basé sur l'univers Solo Leveling
-depend: [CLDAPI]
+depend: [UHCAPI]
 
 commands:
   sololeveling:

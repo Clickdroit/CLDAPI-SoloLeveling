@@ -122,6 +122,13 @@ public class SoloLevelingScoreboardContents implements ScoreboardContents {
         // Épisode et temps
         board.set(" §8» §fÉpisode: §d" + episode, line--);
         board.set(" §8» §f" + dayNight, line--);
+
+        // Timer de révélation des rôles
+        int countdown = plugin.getGameModule().getInternalModule().getRoleRevealCountdown();
+        if (countdown > 0) {
+            board.set(" §8» §fRôle dans: §e" + formatTime(countdown), line--);
+        }
+
         board.set("§2", line--);
 
         // Joueurs en vie
@@ -180,6 +187,19 @@ public class SoloLevelingScoreboardContents implements ScoreboardContents {
         // Ligne finale
         if (line > 0) {
             board.set("§6", line--);
+        }
+    }
+
+    /**
+     * Formate le temps en secondes en format lisible.
+     */
+    private String formatTime(int seconds) {
+        if (seconds < 60) {
+            return seconds + "s";
+        } else {
+            int minutes = seconds / 60;
+            int secs = seconds % 60;
+            return minutes + "m " + secs + "s";
         }
     }
 }

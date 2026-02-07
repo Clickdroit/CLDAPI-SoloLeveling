@@ -20,6 +20,8 @@ public class SoloLevelingModule extends Modules {
 
     private final SoloLevelingPlugin plugin;
     private int roleRevealTime = 60; // Révélation des rôles après 60 secondes
+    private int minPlayersToStart = 4; // Nombre minimum de joueurs
+    private int roleRevealCountdown = -1; // -1 = pas encore démarré ou déjà révélé
 
     public SoloLevelingModule(SoloLevelingPlugin plugin) {
         this.plugin = plugin;
@@ -28,6 +30,22 @@ public class SoloLevelingModule extends Modules {
     @Override
     public void onLoad() {
         plugin.getLogger().info("Module Solo Leveling chargé!");
+        loadConfiguration();
+    }
+
+    private void loadConfiguration() {
+        if (plugin.getConfig().contains("timers.role_reveal")) {
+            this.roleRevealTime = plugin.getConfig().getInt("timers.role_reveal");
+        }
+        if (plugin.getConfig().contains("timers.min_players")) {
+            this.minPlayersToStart = plugin.getConfig().getInt("timers.min_players");
+        }
+    }
+
+    private void saveConfiguration() {
+        plugin.getConfig().set("timers.role_reveal", this.roleRevealTime);
+        plugin.getConfig().set("timers.min_players", this.minPlayersToStart);
+        plugin.saveConfig();
     }
 
     @Override
@@ -39,6 +57,9 @@ public class SoloLevelingModule extends Modules {
 
         // Distribuer les rôles
         plugin.getRoleManager().distributeRoles(inGamePlayers);
+
+        // Démarrer le countdown pour le scoreboard
+        this.roleRevealCountdown = roleRevealTime;
 
         Bukkit.broadcastMessage("");
         Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -58,6 +79,9 @@ public class SoloLevelingModule extends Modules {
     }
 
     private void revealRoles() {
+        // Reset countdown
+        this.roleRevealCountdown = -1;
+
         Bukkit.broadcastMessage("");
         Bukkit.broadcastMessage("§5§l⚡ RÉVÉLATION DES RÔLES ⚡");
         Bukkit.broadcastMessage("");
@@ -124,6 +148,11 @@ public class SoloLevelingModule extends Modules {
     public void onClockUpdate(int gameTime) {
         // Mettre à jour les rôles chaque seconde
         plugin.getRoleManager().onTick(gameTime);
+
+        // Décrémenter le countdown de révélation
+        if (roleRevealCountdown > 0) {
+            roleRevealCountdown--;
+        }
     }
 
     @Override
@@ -183,10 +212,28 @@ public class SoloLevelingModule extends Modules {
 
     public void setRoleRevealTime(int seconds) {
         this.roleRevealTime = seconds;
+        saveConfiguration();
+    }
+
+    public int getRoleRevealTime() {
+        return roleRevealTime;
+    }
+
+    public void setMinPlayersToStart(int minPlayers) {
+        this.minPlayersToStart = minPlayers;
+        saveConfiguration();
+    }
+
+    public int getMinPlayersToStart() {
+        return minPlayersToStart;
+    }
+
+    public int getRoleRevealCountdown() {
+        return roleRevealCountdown;
     }
 
     @Override
     public void openConfig(Player player) {
-        new fr.clickdroit.sololeveling.config.RoleConfigMainGUI(plugin).open(player);
+        plugin.getConfigGUI().open(player);
     }
 }
