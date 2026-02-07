@@ -151,51 +151,64 @@ public class RoleCampGUI implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == null)
-            return;
-        if (!(event.getInventory().getHolder() instanceof RoleCampHolder))
-            return;
+        try {
+            if (event.getClickedInventory() == null)
+                return;
+            if (!(event.getInventory().getHolder() instanceof RoleCampHolder))
+                return;
 
-        event.setCancelled(true);
+            event.setCancelled(true);
 
-        RoleCampHolder holder = (RoleCampHolder) event.getInventory().getHolder();
-        Camp currentCamp = holder.getCamp();
+            RoleCampHolder holder = (RoleCampHolder) event.getInventory().getHolder();
+            Camp currentCamp = holder.getCamp();
 
-        Player player = (Player) event.getWhoClicked();
-        int slot = event.getRawSlot();
-        ItemStack clicked = event.getCurrentItem();
+            Player player = (Player) event.getWhoClicked();
+            int slot = event.getRawSlot();
+            ItemStack clicked = event.getCurrentItem();
 
-        if (clicked == null || clicked.getType() == Material.AIR)
-            return;
-        if (clicked.getType() == Material.STAINED_GLASS_PANE)
-            return;
+            if (clicked == null || clicked.getType() == Material.AIR)
+                return;
+            if (clicked.getType() == Material.STAINED_GLASS_PANE)
+                return;
 
-        // Bouton retour
-        if (slot == 49) {
-            plugin.getRoleConfigGUI().open(player);
-            return;
-        }
+            // Bouton retour
+            if (slot == 49) {
+                plugin.getRoleConfigGUI().open(player);
+                return;
+            }
 
-        // Clic sur un rôle
-        if (slot >= 9 && slot < 45 && clicked.hasItemMeta()) {
-            String roleName = extractRoleName(clicked.getItemMeta().getDisplayName());
-            if (roleName != null) {
-                RoleManager rm = plugin.getRoleManager();
+            // Clic sur un rôle
+            if (slot >= 9 && slot < 45 && clicked.hasItemMeta()) {
+                String displayName = clicked.getItemMeta().getDisplayName();
+                String roleName = extractRoleName(displayName);
 
-                if (event.isShiftClick()) {
-                    // Ouvrir les détails du rôle
-                    plugin.getRoleDetailGUI().open(player, roleName, currentCamp);
+                if (roleName != null) {
+                    RoleManager rm = plugin.getRoleManager();
+
+                    if (event.isShiftClick()) {
+                        // Ouvrir les détails du rôle
+                        plugin.getRoleDetailGUI().open(player, roleName, currentCamp);
+                    } else {
+                        // Toggle enable/disable
+                        boolean currentState = rm.isRoleEnabled(roleName);
+                        rm.setRoleEnabled(roleName, !currentState);
+
+                        String status = !currentState ? "§aactivé" : "§cdésactivé";
+                        player.sendMessage("§5§l[RÔLES] §fRôle §e" + roleName + " §f" + status + "§f!");
+
+                        // Refresh
+                        open(player, currentCamp);
+                    }
                 } else {
-                    // Toggle enable/disable
-                    boolean currentState = rm.isRoleEnabled(roleName);
-                    rm.setRoleEnabled(roleName, !currentState);
-
-                    String status = !currentState ? "§aactivé" : "§cdésactivé";
-                    player.sendMessage("§5§l[RÔLES] §fRôle §e" + roleName + " §f" + status + "§f!");
-
-                    // Refresh
-                    open(player, currentCamp);
+                    plugin.getLogger().warning("Impossible d'extraire le nom du rôle depuis: " + displayName);
                 }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().severe("Erreur lors du clic dans RoleCampGUI:");
+            e.printStackTrace();
+            if (event.getWhoClicked() instanceof Player) {
+                ((Player) event.getWhoClicked())
+                        .sendMessage("§cUne erreur est survenue lors de l'interaction avec le menu.");
             }
         }
     }

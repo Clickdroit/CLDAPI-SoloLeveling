@@ -201,41 +201,46 @@ public class RoleConfigMainGUI implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals(GUI_NAME))
-            return;
-        event.setCancelled(true);
+        try {
+            if (!event.getView().getTitle().equals(GUI_NAME))
+                return;
+            event.setCancelled(true);
 
-        Player player = (Player) event.getWhoClicked();
-        int slot = event.getRawSlot();
+            Player player = (Player) event.getWhoClicked();
+            int slot = event.getRawSlot();
 
-        RoleCampGUI campGUI = plugin.getRoleCampGUI();
+            RoleCampGUI campGUI = plugin.getRoleCampGUI();
 
-        switch (slot) {
-            case 11: // Chasseurs
-                campGUI.open(player, Camp.HUNTERS);
-                break;
-            case 13: // Monarques
-                campGUI.open(player, Camp.MONARCHS);
-                break;
-            case 15: // Dirigeants
-                campGUI.open(player, Camp.RULERS);
-                break;
-            case 22: // Neutres
-                campGUI.open(player, Camp.NEUTRAL);
-                break;
-            case 29: // Activer tous
-                enableAllRoles(true);
-                player.sendMessage("§a§l[RÔLES] §fTous les rôles ont été activés!");
-                open(player); // Refresh
-                break;
-            case 33: // Désactiver tous
-                enableAllRoles(false);
-                player.sendMessage("§c§l[RÔLES] §fTous les rôles ont été désactivés!");
-                open(player); // Refresh
-                break;
-            case 40: // Retour
-                plugin.getConfigGUI().open(player);
-                break;
+            switch (slot) {
+                case 11: // Chasseurs
+                    campGUI.open(player, Camp.HUNTERS);
+                    break;
+                case 13: // Monarques
+                    campGUI.open(player, Camp.MONARCHS);
+                    break;
+                case 15: // Dirigeants
+                    campGUI.open(player, Camp.RULERS);
+                    break;
+                case 22: // Neutres
+                    campGUI.open(player, Camp.NEUTRAL);
+                    break;
+                case 29: // Activer tous
+                    enableAllRoles(true);
+                    player.sendMessage("§a§l[RÔLES] §fTous les rôles ont été activés!");
+                    open(player); // Refresh
+                    break;
+                case 33: // Désactiver tous
+                    enableAllRoles(false);
+                    player.sendMessage("§c§l[RÔLES] §fTous les rôles ont été désactivés!");
+                    open(player); // Refresh
+                    break;
+                case 40: // Retour
+                    plugin.getConfigGUI().open(player);
+                    break;
+            }
+        } catch (Exception e) {
+            plugin.getLogger().severe("Erreur lors du clic dans RoleConfigMainGUI:");
+            e.printStackTrace();
         }
     }
 
