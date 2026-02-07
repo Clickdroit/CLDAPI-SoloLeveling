@@ -158,6 +158,14 @@ public class RoleManager {
     }
 
     /**
+     * Obtient les noms de tous les rôles enregistrés.
+     * Méthode optimisée pour éviter de créer des instances.
+     */
+    public Set<String> getRegisteredRoleNames() {
+        return new HashSet<>(registeredRoles.keySet());
+    }
+
+    /**
      * Active ou désactive un rôle.
      */
     public void setRoleEnabled(String roleName, boolean enabled) {

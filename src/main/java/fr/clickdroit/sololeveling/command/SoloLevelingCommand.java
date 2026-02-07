@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Commande principale /sololeveling pour la gestion du mode.
+ * Fournit des informations sur le mode de jeu, les rôles et les camps.
  */
 public class SoloLevelingCommand implements CommandExecutor {
 
@@ -47,12 +48,41 @@ public class SoloLevelingCommand implements CommandExecutor {
                 sendInfo(sender);
                 break;
 
+            case "stats":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("§cCette commande est réservée aux joueurs!");
+                    return true;
+                }
+                plugin.getStatsManager().showPersonalStats((Player) sender);
+                break;
+
+            case "reset":
+                if (!sender.hasPermission("sololeveling.admin")) {
+                    sender.sendMessage("§cVous n'avez pas la permission!");
+                    return true;
+                }
+                plugin.getGameModule().reset();
+                sender.sendMessage("§a§l[SL] §fModule réinitialisé!");
+                break;
+
             case "reload":
                 if (!sender.hasPermission("sololeveling.admin")) {
                     sender.sendMessage("§cVous n'avez pas la permission!");
                     return true;
                 }
-                sender.sendMessage("§aConfiguration rechargée!");
+                sender.sendMessage("§a§l[SL] §fConfiguration rechargée!");
+                break;
+
+            case "config":
+                if (!sender.hasPermission("sololeveling.admin")) {
+                    sender.sendMessage("§cVous n'avez pas la permission!");
+                    return true;
+                }
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("§cCette commande est réservée aux joueurs!");
+                    return true;
+                }
+                plugin.getGameModule().openConfig((Player) sender);
                 break;
 
             default:
@@ -69,11 +99,22 @@ public class SoloLevelingCommand implements CommandExecutor {
         sender.sendMessage("  §e/sl help §7- Affiche cette aide");
         sender.sendMessage("  §e/sl roles §7- Liste des rôles disponibles");
         sender.sendMessage("  §e/sl camps §7- Information sur les camps");
+        sender.sendMessage("  §e/sl stats §7- Vos statistiques personnelles");
         sender.sendMessage("  §e/sl info §7- Informations sur le plugin");
         sender.sendMessage("");
         sender.sendMessage("  §e/role §7- Affiche votre rôle");
         sender.sendMessage("  §e/powers §7- Affiche vos pouvoirs");
+        sender.sendMessage("  §e/camp §7- Affiche votre camp");
         sender.sendMessage("");
+
+        if (sender.hasPermission("sololeveling.admin")) {
+            sender.sendMessage("  §c§lAdmin:");
+            sender.sendMessage("  §e/sl config §7- Ouvre la configuration");
+            sender.sendMessage("  §e/sl reset §7- Réinitialise le module");
+            sender.sendMessage("  §e/sl reload §7- Recharge la configuration");
+            sender.sendMessage("");
+        }
+
         sender.sendMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
 
@@ -88,7 +129,8 @@ public class SoloLevelingCommand implements CommandExecutor {
                 sender.sendMessage(
                         camp.getColorCode() + "§l" + camp.getDisplayName() + " §7(" + roles.size() + " rôles)");
                 for (Role role : roles) {
-                    sender.sendMessage("  §8• " + role.getRarity().getColorCode() + role.getName());
+                    String status = plugin.getRoleManager().isRoleEnabled(role.getName()) ? "§a✔" : "§c✖";
+                    sender.sendMessage("  §8• " + role.getRarity().getColorCode() + role.getName() + " " + status);
                 }
                 sender.sendMessage("");
             }
@@ -121,6 +163,7 @@ public class SoloLevelingCommand implements CommandExecutor {
         sender.sendMessage("");
         sender.sendMessage("  §7Rôles enregistrés: §e" + plugin.getRoleManager().getRegisteredRolesCount());
         sender.sendMessage("  §7Camps: §e" + Camp.values().length);
+        sender.sendMessage("  §7Joueurs en partie: §e" + plugin.getRoleManager().getRolePlayers().size());
         sender.sendMessage("");
         sender.sendMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }

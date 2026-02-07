@@ -148,6 +148,13 @@ public class SoloLevelingGameModule implements GameModule {
     }
 
     /**
+     * Réinitialise le module.
+     */
+    public void reset() {
+        module.reset();
+    }
+
+    /**
      * Récupère le module interne Solo Leveling.
      * 
      * @return le module interne

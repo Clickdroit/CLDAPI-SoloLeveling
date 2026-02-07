@@ -2,6 +2,7 @@ package fr.clickdroit.sololeveling.listener;
 
 import fr.clickdroit.sololeveling.SoloLevelingPlugin;
 import fr.clickdroit.sololeveling.power.Power;
+import fr.clickdroit.sololeveling.power.PowerType;
 import fr.clickdroit.sololeveling.role.RolePlayer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * Listener pour l'activation des pouvoirs.
+ * Gère les interactions avec les items pour activer les pouvoirs des rôles.
  */
 public class PowerListener implements Listener {
 
@@ -45,8 +47,8 @@ public class PowerListener implements Listener {
 
         // Activer le premier pouvoir actif disponible
         for (Power power : rp.getRole().getPowers()) {
-            if (power.getType().name().equals("ACTIVE") ||
-                    power.getType().name().equals("ULTIMATE")) {
+            PowerType type = power.getType();
+            if (type == PowerType.ACTIVE || type == PowerType.ULTIMATE) {
                 if (power.execute(player)) {
                     rp.addPowerUsed();
                     break;

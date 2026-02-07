@@ -1,6 +1,7 @@
 package fr.clickdroit.sololeveling.module;
 
 import fr.clickdroit.api.API;
+
 import fr.clickdroit.api.module.Modules;
 import fr.clickdroit.sololeveling.SoloLevelingPlugin;
 import fr.clickdroit.sololeveling.camp.Camp;
@@ -15,16 +16,29 @@ import java.util.UUID;
 
 /**
  * Module principal Solo Leveling qui s'intègre avec CLDAPI.
+ * Ce module gère le mode de jeu basé sur l'univers Solo Leveling.
  */
 public class SoloLevelingModule extends Modules {
 
+    private static final int DEFAULT_ROLE_REVEAL_TIME = 60;
+
     private final SoloLevelingPlugin plugin;
-    private int roleRevealTime = 60; // Révélation des rôles après 60 secondes
+
     private int minPlayersToStart = 4; // Nombre minimum de joueurs
     private int roleRevealCountdown = -1; // -1 = pas encore démarré ou déjà révélé
+    private int roleRevealTime = DEFAULT_ROLE_REVEAL_TIME; // Révélation des rôles après 60 secondes
 
     public SoloLevelingModule(SoloLevelingPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    /**
+     * Retourne le nom d'affichage du module.
+     * 
+     * @return Le nom du module
+     */
+    public String getDisplayName() {
+        return "§5Solo Leveling";
     }
 
     @Override
@@ -55,6 +69,9 @@ public class SoloLevelingModule extends Modules {
         // Récupérer les joueurs en jeu
         List<UUID> inGamePlayers = new ArrayList<>(api.getGameManager().getInGamePlayers());
 
+        // Initialiser les statistiques
+        plugin.getStatsManager().startGame(inGamePlayers);
+
         // Distribuer les rôles
         plugin.getRoleManager().distributeRoles(inGamePlayers);
 
@@ -73,9 +90,7 @@ public class SoloLevelingModule extends Modules {
         Bukkit.broadcastMessage("");
 
         // Programmer la révélation des rôles
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            revealRoles();
-        }, roleRevealTime * 20L);
+        Bukkit.getScheduler().runTaskLater(plugin, this::revealRoles, roleRevealTime * 20L);
     }
 
     private void revealRoles() {
@@ -112,8 +127,10 @@ public class SoloLevelingModule extends Modules {
             }
         }
 
-        // Notifier le killer
+        // Enregistrer les statistiques
         if (killer != null) {
+            plugin.getStatsManager().recordKill(killer.getUniqueId(), player.getUniqueId());
+
             RolePlayer killerRp = plugin.getRoleManager().getRolePlayer(killer.getUniqueId());
             if (killerRp != null && killerRp.getRole() != null) {
                 killerRp.addKill();
@@ -140,8 +157,20 @@ public class SoloLevelingModule extends Modules {
     private void checkWinConditions() {
         Camp winner = plugin.getCampManager().checkWinCondition();
         if (winner != null) {
+            // Terminer les statistiques avant d'annoncer la victoire
+            plugin.getStatsManager().endGame();
             plugin.getCampManager().announceVictory(winner);
         }
+    }
+
+    /**
+     * Réinitialise le module pour une nouvelle partie.
+     */
+    public void reset() {
+        plugin.getRoleManager().reset();
+        plugin.getStatsManager().reset();
+        roleRevealTime = DEFAULT_ROLE_REVEAL_TIME;
+        plugin.getLogger().info("Module Solo Leveling réinitialisé.");
     }
 
     @Override
