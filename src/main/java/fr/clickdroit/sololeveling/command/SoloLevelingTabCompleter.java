@@ -60,7 +60,7 @@ public class SoloLevelingTabCompleter implements TabCompleter {
     private List<String> completeSoloLevelingCommand(CommandSender sender, String[] args) {
         if (args.length == 1) {
             List<String> subCommands = new ArrayList<>(Arrays.asList(
-                "help", "roles", "camps", "info"
+                "help", "roles", "camps", "info", "stats"
             ));
             
             // Commandes admin uniquement

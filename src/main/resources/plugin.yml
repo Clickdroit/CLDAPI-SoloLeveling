@@ -20,6 +20,10 @@ commands:
   camp:
     description: Affiche les informations sur votre camp
     usage: /camp
+  cc:
+    description: Envoie un message privé aux membres de votre camp
+    aliases: [campchat]
+    usage: /cc <message>
 
 permissions:
   sololeveling.admin:

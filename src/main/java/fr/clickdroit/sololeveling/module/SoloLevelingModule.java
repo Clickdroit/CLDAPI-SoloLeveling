@@ -198,8 +198,14 @@ public class SoloLevelingModule extends Modules {
 
     @Override
     public void onEpisodeSwitch() {
-        // Récupérer l'épisode actuel depuis l'API
-        // plugin.getRoleManager().onEpisode(episode);
+        int episode = plugin.getRoleManager().getCurrentEpisode() + 1;
+        plugin.getRoleManager().onEpisode(episode);
+
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        Bukkit.broadcastMessage("  §5§lÉPISODE " + episode + " §7— Le monde change...");
+        Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        Bukkit.broadcastMessage("");
     }
 
     @Override

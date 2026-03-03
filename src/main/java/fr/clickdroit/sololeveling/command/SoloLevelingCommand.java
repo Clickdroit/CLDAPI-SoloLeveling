@@ -3,6 +3,8 @@ package fr.clickdroit.sololeveling.command;
 import fr.clickdroit.sololeveling.SoloLevelingPlugin;
 import fr.clickdroit.sololeveling.camp.Camp;
 import fr.clickdroit.sololeveling.role.Role;
+import fr.clickdroit.sololeveling.role.RolePlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -73,6 +75,18 @@ public class SoloLevelingCommand implements CommandExecutor {
                 sender.sendMessage("§a§l[SL] §fConfiguration rechargée!");
                 break;
 
+            case "setrole":
+                if (!sender.hasPermission("sololeveling.admin")) {
+                    sender.sendMessage("§cVous n'avez pas la permission!");
+                    return true;
+                }
+                if (args.length < 3) {
+                    sender.sendMessage("§cUsage: /sl setrole <joueur> <role>");
+                    return true;
+                }
+                handleSetRole(sender, args[1], args[2]);
+                break;
+
             case "config":
                 if (!sender.hasPermission("sololeveling.admin")) {
                     sender.sendMessage("§cVous n'avez pas la permission!");
@@ -105,11 +119,13 @@ public class SoloLevelingCommand implements CommandExecutor {
         sender.sendMessage("  §e/role §7- Affiche votre rôle");
         sender.sendMessage("  §e/powers §7- Affiche vos pouvoirs");
         sender.sendMessage("  §e/camp §7- Affiche votre camp");
+        sender.sendMessage("  §e/cc <message> §7- Chat de camp (alliés seulement)");
         sender.sendMessage("");
 
         if (sender.hasPermission("sololeveling.admin")) {
             sender.sendMessage("  §c§lAdmin:");
             sender.sendMessage("  §e/sl config §7- Ouvre la configuration");
+            sender.sendMessage("  §e/sl setrole <joueur> <rôle> §7- Force un rôle à un joueur");
             sender.sendMessage("  §e/sl reset §7- Réinitialise le module");
             sender.sendMessage("  §e/sl reload §7- Recharge la configuration");
             sender.sendMessage("");
@@ -166,5 +182,37 @@ public class SoloLevelingCommand implements CommandExecutor {
         sender.sendMessage("  §7Joueurs en partie: §e" + plugin.getRoleManager().getRolePlayers().size());
         sender.sendMessage("");
         sender.sendMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    }
+
+    private void handleSetRole(CommandSender sender, String playerName, String roleName) {
+        Player target = Bukkit.getPlayer(playerName);
+        if (target == null) {
+            sender.sendMessage("§cJoueur introuvable: " + playerName);
+            return;
+        }
+
+        Role role = plugin.getRoleManager().createRole(roleName);
+        if (role == null) {
+            sender.sendMessage("§cRôle introuvable: " + roleName);
+            sender.sendMessage("§7Utilisez §e/sl roles §7pour voir les rôles disponibles.");
+            return;
+        }
+
+        RolePlayer rp = plugin.getRoleManager().getRolePlayer(target.getUniqueId());
+        if (rp == null) {
+            rp = new RolePlayer(target);
+            plugin.getRoleManager().getRolePlayers().put(target.getUniqueId(), rp);
+        }
+
+        // Nettoyer les effets de potion de l'ancien rôle avant d'assigner le nouveau
+        target.getActivePotionEffects().forEach(effect -> target.removePotionEffect(effect.getType()));
+
+        rp.setRole(role);
+        rp.setRoleRevealed(true);
+        role.onRoleAssigned(target);
+        role.onRoleReveal(target);
+
+        sender.sendMessage("§a§l[SL] §fRôle §e" + role.getName() + " §fattribué à §e" + target.getName() + "§f.");
+        target.sendMessage("§5§l[SL] §fVotre rôle a été modifié par un administrateur.");
     }
 }
