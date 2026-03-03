@@ -96,6 +96,7 @@ public class RoleManager {
         registerRole(ThomasAndre.class);
         registerRole(LiuZhigang.class);
         registerRole(YooJinHo.class);
+        registerRole(MinByungGyu.class);
 
         // === MONARQUES ===
         registerRole(Antares.class);
@@ -104,6 +105,7 @@ public class RoleManager {
         registerRole(Baran.class);
         registerRole(Tarnak.class);
         registerRole(Sillad.class);
+        registerRole(Fennir.class);
 
         // === DIRIGEANTS ===
         registerRole(FragmentOfLight.class);
