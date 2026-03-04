@@ -56,4 +56,56 @@ public interface Power {
      * Appelé lorsque le pouvoir est sur cooldown et le joueur essaie de l'utiliser.
      */
     void onCooldown(Player player, int remainingSeconds);
+
+    // === Événements ===
+
+    /**
+     * Appelé à l'affectation du rôle.
+     */
+    void onRoleAssigned(Player player);
+
+    /**
+     * Appelé à la révélation du rôle.
+     */
+    void onRoleReveal(Player player);
+
+    /**
+     * Appelé à la mort du joueur propriétaire.
+     */
+    void onDeath(Player player, Player killer);
+
+    /**
+     * Appelé quand le joueur propriétaire tue quelqu'un.
+     */
+    void onKill(Player player, Player victim);
+
+    /**
+     * Appelé chaque nuit.
+     */
+    void onNight();
+
+    /**
+     * Appelé chaque jour.
+     */
+    void onDay();
+
+    /**
+     * Appelé au changement d'épisode.
+     */
+    void onEpisode(int episode);
+
+    /**
+     * Appelé à chaque tick/seconde.
+     */
+    void onTick(int gameTime);
+
+    /**
+     * Appelé au lancement de la partie.
+     */
+    void onGameStart();
+
+    /**
+     * Appelé à la fin de la partie.
+     */
+    void onGameEnd();
 }

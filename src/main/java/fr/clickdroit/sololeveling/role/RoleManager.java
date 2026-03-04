@@ -125,7 +125,7 @@ public class RoleManager {
      */
     public void registerRole(Class<? extends Role> roleClass) {
         try {
-            Role instance = roleClass.newInstance();
+            Role instance = roleClass.getDeclaredConstructor().newInstance();
             String name = instance.getName();
             String key = name.toLowerCase();
             registeredRoles.put(key, roleClass);
@@ -211,7 +211,7 @@ public class RoleManager {
             return null;
 
         try {
-            return roleClass.newInstance();
+            return roleClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             plugin.getLogger().warning("Impossible de créer le rôle: " + roleName);
             return null;
@@ -318,12 +318,12 @@ public class RoleManager {
     public List<Role> getRolesByCamp(Camp camp) {
         List<Role> roles = new ArrayList<>();
         for (Class<? extends Role> roleClass : registeredRoles.values()) {
-            try {
-                Role role = roleClass.newInstance();
-                if (role.getCamp() == camp) {
-                    roles.add(role);
+            RoleInfo info = roleClass.getAnnotation(RoleInfo.class);
+            if (info != null && info.camp() == camp) {
+                try {
+                    roles.add(roleClass.getDeclaredConstructor().newInstance());
+                } catch (Exception ignored) {
                 }
-            } catch (Exception ignored) {
             }
         }
         return roles;

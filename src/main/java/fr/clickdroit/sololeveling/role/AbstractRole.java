@@ -126,6 +126,9 @@ public abstract class AbstractRole implements Role {
     @Override
     public void onRoleAssigned(Player player) {
         this.ownerUuid = player.getUniqueId();
+        for (Power power : powers) {
+            power.onRoleAssigned(player);
+        }
     }
 
     @Override
@@ -153,46 +156,66 @@ public abstract class AbstractRole implements Role {
         player.sendMessage("");
         player.sendMessage("§8§l§m                                                §r");
         player.sendMessage("");
+
+        for (Power power : powers) {
+            power.onRoleReveal(player);
+        }
     }
 
     @Override
     public void onDeath(Player player, Player killer) {
-        // Par défaut, ne rien faire
+        for (Power power : powers) {
+            power.onDeath(player, killer);
+        }
     }
 
     @Override
     public void onKill(Player player, Player victim) {
-        // Par défaut, ne rien faire
+        for (Power power : powers) {
+            power.onKill(player, victim);
+        }
     }
 
     @Override
     public void onNight() {
-        // Par défaut, ne rien faire
+        for (Power power : powers) {
+            power.onNight();
+        }
     }
 
     @Override
     public void onDay() {
-        // Par défaut, ne rien faire
+        for (Power power : powers) {
+            power.onDay();
+        }
     }
 
     @Override
     public void onEpisode(int episode) {
-        // Par défaut, ne rien faire
+        for (Power power : powers) {
+            power.onEpisode(episode);
+        }
     }
 
     @Override
     public void onTick(int gameTime) {
-        // Par défaut, ne rien faire
+        for (Power power : powers) {
+            power.onTick(gameTime);
+        }
     }
 
     @Override
     public void onGameStart() {
-        // Par défaut, ne rien faire
+        for (Power power : powers) {
+            power.onGameStart();
+        }
     }
 
     @Override
     public void onGameEnd() {
-        // Par défaut, ne rien faire
+        for (Power power : powers) {
+            power.onGameEnd();
+        }
     }
 
     /**

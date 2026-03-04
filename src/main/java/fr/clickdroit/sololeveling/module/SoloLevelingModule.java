@@ -27,6 +27,7 @@ public class SoloLevelingModule extends Modules {
     private int minPlayersToStart = 4; // Nombre minimum de joueurs
     private int roleRevealCountdown = -1; // -1 = pas encore démarré ou déjà révélé
     private int roleRevealTime = DEFAULT_ROLE_REVEAL_TIME; // Révélation des rôles après 60 secondes
+    private org.bukkit.scheduler.BukkitTask revealTask;
 
     public SoloLevelingModule(SoloLevelingPlugin plugin) {
         this.plugin = plugin;
@@ -90,11 +91,15 @@ public class SoloLevelingModule extends Modules {
         Bukkit.broadcastMessage("");
 
         // Programmer la révélation des rôles
-        Bukkit.getScheduler().runTaskLater(plugin, this::revealRoles, roleRevealTime * 20L);
+        if (this.revealTask != null) {
+            this.revealTask.cancel();
+        }
+        this.revealTask = Bukkit.getScheduler().runTaskLater(plugin, this::revealRoles, roleRevealTime * 20L);
     }
 
     private void revealRoles() {
         // Reset countdown
+        this.revealTask = null;
         this.roleRevealCountdown = -1;
 
         Bukkit.broadcastMessage("");
@@ -170,6 +175,10 @@ public class SoloLevelingModule extends Modules {
         plugin.getRoleManager().reset();
         plugin.getStatsManager().reset();
         roleRevealTime = DEFAULT_ROLE_REVEAL_TIME;
+        if (this.revealTask != null) {
+            this.revealTask.cancel();
+            this.revealTask = null;
+        }
         plugin.getLogger().info("Module Solo Leveling réinitialisé.");
     }
 
