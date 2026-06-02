@@ -66,6 +66,7 @@ public class SoloLevelingModule extends Modules {
     @Override
     public void onStart(API api) {
         super.onStart(api);
+        api.getCommon().getScoreboardManager().setScoreboardContents(() -> new fr.clickdroit.sololeveling.scoreboard.SoloLevelingScoreboardContents(api, plugin));
 
         // Récupérer les joueurs en jeu
         List<UUID> inGamePlayers = new ArrayList<>(api.getGameManager().getInGamePlayers());
