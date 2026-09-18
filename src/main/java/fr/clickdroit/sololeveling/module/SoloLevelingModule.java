@@ -27,6 +27,7 @@ public class SoloLevelingModule extends Modules {
     private int minPlayersToStart = 4; // Nombre minimum de joueurs
     private int roleRevealCountdown = -1; // -1 = pas encore démarré ou déjà révélé
     private int roleRevealTime = DEFAULT_ROLE_REVEAL_TIME; // Révélation des rôles après 60 secondes
+    private org.bukkit.scheduler.BukkitTask revealTask;
 
     public SoloLevelingModule(SoloLevelingPlugin plugin) {
         this.plugin = plugin;
@@ -65,6 +66,7 @@ public class SoloLevelingModule extends Modules {
     @Override
     public void onStart(API api) {
         super.onStart(api);
+        api.getCommon().getScoreboardManager().setScoreboardContents(() -> new fr.clickdroit.sololeveling.scoreboard.SoloLevelingScoreboardContents(api, plugin));
 
         // Récupérer les joueurs en jeu
         List<UUID> inGamePlayers = new ArrayList<>(api.getGameManager().getInGamePlayers());
@@ -90,11 +92,15 @@ public class SoloLevelingModule extends Modules {
         Bukkit.broadcastMessage("");
 
         // Programmer la révélation des rôles
-        Bukkit.getScheduler().runTaskLater(plugin, this::revealRoles, roleRevealTime * 20L);
+        if (this.revealTask != null) {
+            this.revealTask.cancel();
+        }
+        this.revealTask = Bukkit.getScheduler().runTaskLater(plugin, this::revealRoles, roleRevealTime * 20L);
     }
 
     private void revealRoles() {
         // Reset countdown
+        this.revealTask = null;
         this.roleRevealCountdown = -1;
 
         Bukkit.broadcastMessage("");
@@ -170,6 +176,10 @@ public class SoloLevelingModule extends Modules {
         plugin.getRoleManager().reset();
         plugin.getStatsManager().reset();
         roleRevealTime = DEFAULT_ROLE_REVEAL_TIME;
+        if (this.revealTask != null) {
+            this.revealTask.cancel();
+            this.revealTask = null;
+        }
         plugin.getLogger().info("Module Solo Leveling réinitialisé.");
     }
 
@@ -198,8 +208,14 @@ public class SoloLevelingModule extends Modules {
 
     @Override
     public void onEpisodeSwitch() {
-        // Récupérer l'épisode actuel depuis l'API
-        // plugin.getRoleManager().onEpisode(episode);
+        int episode = plugin.getRoleManager().getCurrentEpisode() + 1;
+        plugin.getRoleManager().onEpisode(episode);
+
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        Bukkit.broadcastMessage("  §5§lÉPISODE " + episode + " §7— Le monde change...");
+        Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        Bukkit.broadcastMessage("");
     }
 
     @Override

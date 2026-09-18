@@ -191,4 +191,46 @@ public abstract class AbstractPower implements Power {
         resetCooldown(uuid);
         resetUses(uuid);
     }
+
+    // === Implémentations par défaut des événements ===
+
+    @Override
+    public void onRoleAssigned(Player player) {
+    }
+
+    @Override
+    public void onRoleReveal(Player player) {
+    }
+
+    @Override
+    public void onDeath(Player player, Player killer) {
+    }
+
+    @Override
+    public void onKill(Player player, Player victim) {
+    }
+
+    @Override
+    public void onNight() {
+    }
+
+    @Override
+    public void onDay() {
+    }
+
+    @Override
+    public void onEpisode(int episode) {
+    }
+
+    @Override
+    public void onTick(int gameTime) {
+    }
+
+    @Override
+    public void onGameStart() {
+    }
+
+    @Override
+    public void onGameEnd() {
+    }
 }

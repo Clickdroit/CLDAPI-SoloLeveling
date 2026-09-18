@@ -2,6 +2,7 @@ package fr.clickdroit.sololeveling;
 
 import fr.clickdroit.api.API;
 import fr.clickdroit.sololeveling.camp.CampManager;
+import fr.clickdroit.sololeveling.command.CampChatCommand;
 import fr.clickdroit.sololeveling.command.CampCommand;
 import fr.clickdroit.sololeveling.command.PowersCommand;
 import fr.clickdroit.sololeveling.command.RoleCommand;
@@ -84,6 +85,7 @@ public class SoloLevelingPlugin extends JavaPlugin {
         getCommand("powers").setTabCompleter(tabCompleter);
         getCommand("camp").setExecutor(new CampCommand(this));
         getCommand("camp").setTabCompleter(tabCompleter);
+        getCommand("cc").setExecutor(new CampChatCommand(this));
 
         getLogger().info("§5Solo Leveling UHC §fchargé avec succès!");
         getLogger().info("§7" + roleManager.getRegisteredRolesCount() + " rôles enregistrés.");
